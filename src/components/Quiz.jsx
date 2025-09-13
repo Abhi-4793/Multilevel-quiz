@@ -19,6 +19,8 @@ export default function Quiz({ onFinish, onBackToStart }) {
   const [qIndex, setQIndex] = useState(0);
   const [selected, setSelected] = useState(null);
   const [answers, setAnswers] = useState([]);
+
+  const [showLevelSummary, setShowLevelSummary] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const level = LEVELS[levelIndex];
   const current = questions[qIndex];
@@ -37,9 +39,10 @@ export default function Quiz({ onFinish, onBackToStart }) {
     setSelected(null);
     setFeedback(null);
     setAnswers([]);
+    setShowLevelSummary(false);
     resetTimer();
   }, [levelIndex]);
-  // derived state
+
   const correctCount = useMemo(
     () => answers.filter((a) => a.isCorrect).length,
     [answers]
@@ -55,7 +58,6 @@ export default function Quiz({ onFinish, onBackToStart }) {
     (forced = false, timeout = false) => {
       if (!current) return;
 
-      // evaluate
       const isCorrect = evaluate(current, selected);
       const points = isCorrect ? POINTS[level] : 0;
 
@@ -68,9 +70,7 @@ export default function Quiz({ onFinish, onBackToStart }) {
           points,
         },
       ]);
-      if (isCorrect) {
-        setTotalScore((prev) => prev + POINTS[level]);
-      }
+
       if (timeout) {
         setFeedback({ ok: false, message: FEEDBACK_MESSAGES.timeout });
       } else if (isCorrect) {
@@ -85,23 +85,37 @@ export default function Quiz({ onFinish, onBackToStart }) {
       setTimeout(() => {
         setFeedback(null);
         setSelected(null);
+
         if (qIndex + 1 < questions.length) {
           setQIndex(qIndex + 1);
           resetTimer();
         } else {
-          if (correctCount + (isCorrect ? 1 : 0) >= PASS_REQUIRED) {
+          const levelScore = [...answers, { isCorrect, points }].reduce(
+            (sum, a) => sum + a.points,
+            0
+          );
+
+          setTotalScore((prev) => prev + levelScore);
+
+          const correctCountLevel = [...answers, { isCorrect }].filter(
+            (a) => a.isCorrect
+          ).length;
+
+          if (correctCountLevel >= PASS_REQUIRED) {
             if (levelIndex + 1 < LEVELS.length) {
               setLevelIndex(levelIndex + 1);
             } else {
               onFinish({
-                total: totalScore + points,
+                total: totalScore + levelScore,
                 final: true,
                 levelCompleted: level,
               });
             }
+          } else {
+            setShowLevelSummary(true);
           }
         }
-      }, 900);
+      }, 1500);
     },
     [
       current,
@@ -110,7 +124,7 @@ export default function Quiz({ onFinish, onBackToStart }) {
       questions,
       level,
       levelIndex,
-      correctCount,
+      answers,
       totalScore,
       onFinish,
       resetTimer,
@@ -118,15 +132,21 @@ export default function Quiz({ onFinish, onBackToStart }) {
   );
 
   const levelDone = questions.length > 0 && answeredCount >= questions.length;
-  const passed = correctCount >= PASS_REQUIRED;
 
-  const retryLevel = useCallback(() => {
+  function retryLevel() {
     setQIndex(0);
     setSelected(null);
     setFeedback(null);
     setAnswers([]);
+    setShowLevelSummary(false);
+
+    setTotalScore((prev) => {
+      const levelScore = answers.reduce((sum, a) => sum + a.points, 0);
+      return prev - levelScore;
+    });
+
     resetTimer();
-  }, [resetTimer]);
+  }
 
   const finishGame = useCallback(() => {
     onFinish({
@@ -225,35 +245,60 @@ export default function Quiz({ onFinish, onBackToStart }) {
                 </div>
               </div>
 
-              {passed ? (
-                <div style={{ textAlign: "right" }}>
-                  <div className="sub">You passed this level!</div>
-                  {levelIndex + 1 < LEVELS.length ? (
-                    <button
-                      className="btn"
-                      onClick={() => setLevelIndex(levelIndex + 1)}
-                    >
-                      Proceed to {LEVELS[levelIndex + 1].toUpperCase()}
-                    </button>
+              {showLevelSummary && (
+                <div className="card" style={{ marginTop: 20 }}>
+                  <h2 className="title">Level Complete!</h2>
+
+                  <p className="sub">
+                    Score for this level:{" "}
+                    {answers.reduce(
+                      (sum, a) => sum + (a.isCorrect ? POINTS[level] : 0),
+                      0
+                    )}
+                  </p>
+                  <p className="sub">
+                    Correct Answers: {answers.filter((a) => a.isCorrect).length}{" "}
+                    / {answers.length}
+                  </p>
+
+                  {/*  Pass/Fail check */}
+                  {answers.filter((a) => a.isCorrect).length >=
+                  PASS_REQUIRED ? (
+                    <>
+                      <p className="sub">✅ You passed this level!</p>
+                      {levelIndex + 1 < LEVELS.length ? (
+                        <button
+                          className="btn primary"
+                          onClick={() => setLevelIndex(levelIndex + 1)}
+                        >
+                          Proceed to {LEVELS[levelIndex + 1].toUpperCase()}
+                        </button>
+                      ) : (
+                        <button
+                          className="btn primary"
+                          onClick={() => finishGame()}
+                        >
+                          Finish Quiz
+                        </button>
+                      )}
+                    </>
                   ) : (
-                    <button className="btn" onClick={finishGame}>
-                      Finish Quiz
-                    </button>
+                    <>
+                      <p className="sub">
+                        ❌ You failed this level. Try again!
+                      </p>
+                      <button className="btn primary" onClick={retryLevel}>
+                        Retry Level
+                      </button>
+                      <button
+                        className="btn ghost"
+                        style={{ marginLeft: 10 }}
+                        onClick={onBackToStart}
+                      >
+                        Restart Quiz
+                      </button>
+                    </>
                   )}
-                </div>
-              ) : (
-                <div style={{ textAlign: "right" }}>
-                  <div className="sub">You failed this level.</div>
-                  <button className="btn" onClick={retryLevel}>
-                    Retry Level
-                  </button>
-                  <button
-                    className="btn ghost"
-                    onClick={onBackToStart}
-                    style={{ marginLeft: 8 }}
-                  >
-                    Restart Game
-                  </button>
                 </div>
               )}
             </div>

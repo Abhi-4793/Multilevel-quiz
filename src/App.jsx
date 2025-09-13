@@ -24,7 +24,7 @@ export default function App() {
   function finish(res) {
     setResult(res);
     setPhase("result");
-    // high score handled by ResultScreen as well — keep UI in sync
+
     setHighScore((prev) => Math.max(prev, res.total || 0));
   }
 

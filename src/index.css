@@ -1,4 +1,3 @@
-/* Global Reset */
 * {
   margin: 0;
   padding: 0;
@@ -13,7 +12,7 @@ html,
   color: #fff;
 }
 
-/* Background Image */
+
 body {
   background: url('/src/assets/images/bg.jpeg') no-repeat center center fixed;
   background-size: cover;
@@ -21,7 +20,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Dark overlay for readability */
+
 body::before {
   content: "";
   position: absolute;
@@ -30,7 +29,7 @@ body::before {
   z-index: -1;
 }
 
-/* App container */
+
 .app-container {
   min-height: 100vh;
   display: flex;
@@ -39,10 +38,10 @@ body::before {
   padding: 40px 20px;
 }
 
-/* Card style */
+
 .card {
   background: rgba(0, 0, 0, 0.75);
-  /* darker but more solid */
+
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 16px;
@@ -55,7 +54,7 @@ body::before {
 }
 
 
-/* Typography */
+
 .title {
   font-size: 1.8rem;
   font-weight: bold;
@@ -74,14 +73,14 @@ body::before {
   margin-bottom: 20px;
   font-weight: 500;
   color: #fff;
-  /* force white text */
+
 }
 
 .controls {
   display: flex;
   align-items: center;
   gap: 12px;
-  /* ✅ Adds spacing between Submit & Clear */
+
   margin-top: 12px;
 }
 
@@ -111,7 +110,10 @@ body::before {
   filter: brightness(1.1);
 }
 
-/* Options */
+.radio-input {
+  margin-right: 10px;
+}
+
 .options {
   display: flex;
   flex-direction: column;
@@ -127,11 +129,17 @@ body::before {
   transition: background 0.2s;
 }
 
+input::placeholder,
+input {
+  color: rgba(255, 255, 255, 0.8);
+  opacity: 1;
+
+}
+
 .option:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Feedback */
 .feedback {
   margin-top: 12px;
   padding: 10px;
@@ -150,7 +158,7 @@ body::before {
   color: #e74c3c;
 }
 
-/* Media Queries */
+
 @media (max-width: 768px) {
   .card {
     padding: 18px;
