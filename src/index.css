@@ -14,10 +14,13 @@ html,
 
 
 body {
-  background: url('/src/assets/images/bg.jpeg') no-repeat center center fixed;
+  background: url('/src/assets/images/bg.jpeg') center center no-repeat fixed;
   background-size: cover;
+  background-color: #000;
+  /* fallback space if image doesn’t fill */
   position: relative;
   overflow-x: hidden;
+
 }
 
 
@@ -25,7 +28,7 @@ body::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.65);
   z-index: -1;
 }
 
@@ -160,9 +163,18 @@ input {
 
 
 @media (max-width: 768px) {
+
   .card {
     padding: 18px;
   }
+
+  .retry-restart {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: space-between;
+  }
+
 
   .title {
     font-size: 1.5rem;
@@ -177,6 +189,7 @@ input {
   .card {
     padding: 14px;
   }
+
 
   .title {
     font-size: 1.3rem;

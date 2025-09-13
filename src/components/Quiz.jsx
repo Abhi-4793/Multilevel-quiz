@@ -258,7 +258,7 @@ export default function Quiz({ onFinish, onBackToStart }) {
                   </p>
                   <p className="sub">
                     Correct Answers: {answers.filter((a) => a.isCorrect).length}{" "}
-                    / {answers.length}
+                    / {questions.length}
                   </p>
 
                   {/*  Pass/Fail check */}
@@ -283,7 +283,7 @@ export default function Quiz({ onFinish, onBackToStart }) {
                       )}
                     </>
                   ) : (
-                    <>
+                    <div className="retry-restart">
                       <p className="sub">
                         ❌ You failed this level. Try again!
                       </p>
@@ -297,7 +297,7 @@ export default function Quiz({ onFinish, onBackToStart }) {
                       >
                         Restart Quiz
                       </button>
-                    </>
+                    </div>
                   )}
                 </div>
               )}
